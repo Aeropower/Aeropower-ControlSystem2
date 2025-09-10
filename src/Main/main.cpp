@@ -1,0 +1,17 @@
+#include <Arduino.h>
+
+#include "FSM.h"
+#include "PitchControlState.h"
+
+Servo myServo;
+FSM fsm(myServo);  // Pass the Servo reference to FSM
+
+void setup() {
+  Serial.begin(921600);
+  myServo.attach(18);  // Attach to a valid PWM pin
+}
+
+void loop() {
+  fsm.handle();
+  delay(100);
+}
