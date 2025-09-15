@@ -1,0 +1,7 @@
+#macOS/Linux
+~/.platformio/penv/bin/pio --version
+~/.platformio/penv/bin/pio run -t upload
+~/.platformio/penv/bin/pio device monitor
+
+#Windows
+
