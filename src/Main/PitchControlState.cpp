@@ -1,9 +1,6 @@
 #include "PitchControlState.h"
 #include <Arduino.h>  // For millis(), constrain(), etc.
-
-struct shared_t {
-    float rpm;
-};
+#include "telemetry.h"
 
 // Called when entering the state
 void PitchControlState::onEnter() {
@@ -20,13 +17,14 @@ void PitchControlState::onExit() {
 
 // Main action of the state (called repeatedly in FSM)
 void PitchControlState::handle() {
-  // Example snapshot structure — replace with your actual data
+
+  Telemetry t{};
+  telemetry_get_snapshot(t);
 
   unsigned long now = millis();
   float dt = (now - lastMs) / 1000.0f;  // convert ms to seconds
   lastMs = now;
-  shared_t snap;
-  float rpm = snap.rpm;
+  float rpm = t.rpm;
   float error = targetRpm - rpm;
 
   integral += error * dt;
@@ -36,6 +34,7 @@ void PitchControlState::handle() {
   prevErr = error;
 
   int angle = static_cast<int>(constrain(output, outMin, outMax));
+  telemetry_set_blade_angle(angle);
 
   Serial.print("Target RPM: ");
   Serial.print(targetRpm);

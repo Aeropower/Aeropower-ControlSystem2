@@ -6,6 +6,7 @@
 #define I2C_NUM_ROWS (2)
 #define SERVO_PIN (21)
 #define RPM_PUSHBUTTON_PIN (13)
+#define ANEMOMETER_PIN (1)  // ADC1_1 (GPIO 1)
 
 #endif //GPIO_H_
 
