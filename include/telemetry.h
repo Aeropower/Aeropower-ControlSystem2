@@ -9,7 +9,7 @@ struct Telemetry{
   int blade_angle;
 };
 
-//Global acces
+//Global access
 extern Telemetry telemetry;
 
 void initTelemetry();

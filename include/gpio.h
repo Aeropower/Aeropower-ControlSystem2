@@ -7,6 +7,7 @@
 #define SERVO_PIN (21)
 #define RPM_PUSHBUTTON_PIN (13)
 #define ANEMOMETER_PIN (1)  // ADC1_1 (GPIO 1)
+#define HALL_SENSOR (8)
 
 #endif //GPIO_H_
 
