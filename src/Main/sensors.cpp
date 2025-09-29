@@ -52,6 +52,8 @@ void sensors_poll() {
   int raw = analogRead(ANEMOMETER_PIN);
   telemetry_set_wind(adc_to_wind(raw));
 
+
+  // Get hall effect sensor pulses count
   int16_t counter = 0;
   pcnt_get_counter_value(
       PCNT_UNIT_USED,

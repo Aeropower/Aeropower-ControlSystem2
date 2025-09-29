@@ -54,6 +54,11 @@ void telemetry_set_blade_angle(int angle) {
   telemetry.blade_angle = angle;
   portEXIT_CRITICAL(&telemetryMux);
 }
+void telemetry_set_state(std::string state) {
+  portENTER_CRITICAL(&telemetryMux);
+  telemetry.state = state;
+  portEXIT_CRITICAL(&telemetryMux);
+}
 void telemetry_get_snapshot(Telemetry& snap) {
   portENTER_CRITICAL(&telemetryMux);
   snap = telemetry;

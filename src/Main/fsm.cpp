@@ -6,9 +6,9 @@
 #include "telemetry.h"
 // Example wind speeds, the real ones must be calculated with mechanical
 // division
-#define CUT_IN_SPEED 1
-#define RATED_SPEED 5
-#define CUT_OUT_SPEED 10
+#define CUT_IN_SPEED 5 //Example: 5 m/s
+#define RATED_SPEED 13
+#define CUT_OUT_SPEED 18
 
 FSM::FSM(Servo& bladesServo)
     : pitchControlState(bladesServo),  // Initialize pitchControlState correctly

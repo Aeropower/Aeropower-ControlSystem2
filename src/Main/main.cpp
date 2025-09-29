@@ -1,10 +1,13 @@
 #include <Arduino.h>
 #include <ESP32Servo.h>
+#include <WiFi.h>
 
+#include "esp_bt.h"
+#include "esp_wifi.h"
 #include "fsm.h"
 #include "gpio.h"
-#include "telemetry.h"
 #include "sensors.h"
+#include "telemetry.h"
 // Objetos globales
 Servo myServo;
 FSM* g_fsm = nullptr;
@@ -12,7 +15,6 @@ FSM* g_fsm = nullptr;
 TaskHandle_t hSensor = nullptr;
 TaskHandle_t hLCD = nullptr;
 TaskHandle_t hFSM = nullptr;
-
 
 // -------- Tasks --------
 void SensorTask(void*) {  // Este task lee todos los sensores y actualiza la
@@ -34,11 +36,11 @@ void FSMTask(void*) {  // Maneja la máquina de estados
   }
 }
 
-void LCDTask(void*) {  
+void LCDTask(void*) { 
   Telemetry t{};
   for (;;) {
     telemetry_get_snapshot(t);
-    // LCD logic here
+    // 
     vTaskDelay(pdMS_TO_TICKS(200));
   }
 }
@@ -49,7 +51,18 @@ void setup() {
   delay(1000);
   Serial.println("ESP32-S3 iniciado");
 
-  myServo.attach(18);
+  myServo.attach(SERVO_PIN);
+
+  //Apagar wifi y bluetooth para disminuir el consumo de potencia
+  WiFi.disconnect(true);
+  WiFi.mode(WIFI_OFF);
+  esp_wifi_stop();    
+  esp_wifi_deinit();  
+
+   // Apaga y libera toda la RAM reservada para BLE
+  esp_bt_controller_mem_release(ESP_BT_MODE_BLE);
+  esp_bt_controller_disable();
+  esp_bt_controller_deinit();
 
   static FSM fsm(myServo);
   g_fsm = &fsm;
