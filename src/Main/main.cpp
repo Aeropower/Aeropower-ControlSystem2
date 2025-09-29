@@ -8,6 +8,7 @@
 #include "gpio.h"
 #include "sensors.h"
 #include "telemetry.h"
+#include "lcd.h"
 // Objetos globales
 Servo myServo;
 FSM* g_fsm = nullptr;
@@ -21,6 +22,7 @@ void SensorTask(void*) {  // Este task lee todos los sensores y actualiza la
                           // struct telemetry
   initTelemetry();
   analogReadResolution(12);
+  sensors_init();
 
   const TickType_t period = pdMS_TO_TICKS(500);  // 5 Hz
   for (;;) {
@@ -36,11 +38,10 @@ void FSMTask(void*) {  // Maneja la máquina de estados
   }
 }
 
-void LCDTask(void*) { 
-  Telemetry t{};
+void LCDTask(void*) {
+  lcd_init();
   for (;;) {
-    telemetry_get_snapshot(t);
-    // 
+    update_lcd();
     vTaskDelay(pdMS_TO_TICKS(200));
   }
 }
@@ -53,13 +54,13 @@ void setup() {
 
   myServo.attach(SERVO_PIN);
 
-  //Apagar wifi y bluetooth para disminuir el consumo de potencia
+  // Apagar wifi y bluetooth para disminuir el consumo de potencia
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
-  esp_wifi_stop();    
-  esp_wifi_deinit();  
+  esp_wifi_stop();
+  esp_wifi_deinit();
 
-   // Apaga y libera toda la RAM reservada para BLE
+  // Apaga y libera toda la RAM reservada para BLE
   esp_bt_controller_mem_release(ESP_BT_MODE_BLE);
   esp_bt_controller_disable();
   esp_bt_controller_deinit();
