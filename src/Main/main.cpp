@@ -24,7 +24,7 @@ void SensorTask(void*) {  // Este task lee todos los sensores y actualiza la
   analogReadResolution(12);
   sensors_init();
 
-  const TickType_t period = pdMS_TO_TICKS(500);  // 5 Hz
+  const TickType_t period = pdMS_TO_TICKS(10);  // 5 Hz
   for (;;) {
     sensors_poll();
     vTaskDelay(period);
@@ -34,7 +34,7 @@ void SensorTask(void*) {  // Este task lee todos los sensores y actualiza la
 void FSMTask(void*) {  // Maneja la máquina de estados
   for (;;) {
     if (g_fsm) g_fsm->handle();
-    vTaskDelay(pdMS_TO_TICKS(10));  // 100 Hz FSM
+    vTaskDelay(pdMS_TO_TICKS(100));  // 100 Hz FSM
   }
 }
 
@@ -42,7 +42,7 @@ void LCDTask(void*) {
   lcd_init();
   for (;;) {
     update_lcd();
-    vTaskDelay(pdMS_TO_TICKS(200));
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
 
@@ -68,7 +68,7 @@ void setup() {
   static FSM fsm(myServo);
   g_fsm = &fsm;
 
-  xTaskCreatePinnedToCore(SensorTask, "SensorTask", 4096, nullptr, 2, &hSensor,
+  xTaskCreatePinnedToCore(SensorTask, "SensorTask", 4096, nullptr, 3, &hSensor,
                           0);  // Core 0
   xTaskCreatePinnedToCore(LCDTask, "LCDTask", 4096, nullptr, 1, &hLCD,
                           0);  // Core 0
@@ -80,4 +80,5 @@ void setup() {
 
 void loop() {
   // vacío: todo corre en tasks
+  
 }

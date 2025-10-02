@@ -31,9 +31,12 @@ void lcd_init() {
       FALLING);  // Esto hay que modificarlo segun se conecte el boton
   pinMode(LEFT_BUTTON, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(LEFT_BUTTON), buttonRight, FALLING);
+  delay(500);
 }
 
 void update_lcd() {
+  
+  // Serial.println("lcd");
   Telemetry t{};
   telemetry_get_snapshot(t);
   switch (state) {

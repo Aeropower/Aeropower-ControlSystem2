@@ -7,6 +7,13 @@
 #define PULSES_PER_REV 1
 #define POLL_WINDOW_S 0.5f  // 500 ms
 
+
+//Test Variables
+const float freq = 0.1f;     
+const float omega = 2.0f * M_PI * freq;
+
+
+
 // -------- Wind logic --------
 static inline float adc_to_wind(int raw) {  // Raw es el valor leido del ADC
   const float VREF = 3.3f;
@@ -15,6 +22,22 @@ static inline float adc_to_wind(int raw) {  // Raw es el valor leido del ADC
                                  // hay que calibrar con el datasheet
   if (x < 0) x = 0;
   return x * x * x;  // wind speed tiene un arelacion cubica
+}
+
+// Test Wind Logic
+int sineWindfunc(){
+   float t = millis() / 1000.0f;    
+
+    // Sine wave value, range [-1, 1]
+    float sineVal = sinf(omega * t);
+
+    // Scale if you want e.g. [-100, 100]
+    float scaled = 100.0f * sineVal;
+
+    Serial.println(scaled);
+
+    delay(50); // print every 50 ms
+    return scaled;
 }
 
 void sensors_init() {
@@ -48,9 +71,11 @@ void sensors_init() {
 }
 
 void sensors_poll() {
+  // Serial.println("sensor");
   // Wind sensor
   int raw = analogRead(ANEMOMETER_PIN);
-  telemetry_set_wind(adc_to_wind(raw));
+  // telemetry_set_wind(adc_to_wind(raw)); //Normally we use this
+   telemetry_set_wind(sineWindfunc());
 
 
   // Get hall effect sensor pulses count
@@ -64,5 +89,6 @@ void sensors_poll() {
                     POLL_WINDOW_S;  // Sacar las revoluciones por segundos
   const float rpm = rps * 60.0;     // Convertirlo a minutos
 
-  telemetry_set_rpm(rpm);
+  // telemetry_set_rpm(rpm); //Normally we use this one
+  telemetry_set_rpm(sineWindfunc()); //Testing porpuses
 }

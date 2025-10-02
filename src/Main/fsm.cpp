@@ -6,9 +6,9 @@
 #include "telemetry.h"
 // Example wind speeds, the real ones must be calculated with mechanical
 // division
-#define CUT_IN_SPEED 5 //Example: 5 m/s
-#define RATED_SPEED 13
-#define CUT_OUT_SPEED 18
+#define CUT_IN_SPEED 0 //Example: 5 m/s
+#define RATED_SPEED 0
+#define CUT_OUT_SPEED 0
 
 FSM::FSM(Servo& bladesServo)
     : pitchControlState(bladesServo),  // Initialize pitchControlState correctly
@@ -26,7 +26,7 @@ void FSM::handle() {
   if (!currentState) return;
 
   currentState->handle();
-  if (!currentState->hasFinished()) return;
+  // if (!currentState->hasFinished()) return;
 
   // Read wind speed
   Telemetry t{};
@@ -35,18 +35,22 @@ void FSM::handle() {
 
   // Decide next state
   State* next = nullptr;
-  if (windSpeed < CUT_IN_SPEED) {
+  if (windSpeed == CUT_IN_SPEED) {
     next = &stallState;
+    Serial.println("FSM: switching to Stall"); 
   } else if (windSpeed < RATED_SPEED) {
     next = &torqueControlState;
-  } else if (windSpeed < CUT_OUT_SPEED) {
+    Serial.println("FSM: switching to Torque"); 
+  } else if (windSpeed > CUT_OUT_SPEED) { ///// <
     next = &pitchControlState;
+    Serial.println("FSM: switching to PitchControlState"); 
   } else {
     next = &emergencyStopState;
   }
 
   // Transition if state changed
   if (next != currentState) {
+    Serial.println("FSM: Actual swicth"); 
     currentState->onExit();
     currentState = next;
     currentState->reset();
