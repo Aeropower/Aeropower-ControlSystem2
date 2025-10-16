@@ -24,7 +24,7 @@ void SensorTask(void*) {  // Este task lee todos los sensores y actualiza la
   analogReadResolution(12);
   sensors_init();
 
-  const TickType_t period = pdMS_TO_TICKS(10);  // 5 Hz
+  const TickType_t period = pdMS_TO_TICKS(500);  
   for (;;) {
     sensors_poll();
     vTaskDelay(period);

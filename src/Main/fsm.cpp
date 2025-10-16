@@ -6,17 +6,17 @@
 #include "telemetry.h"
 // Example wind speeds, the real ones must be calculated with mechanical
 // division
-#define CUT_IN_SPEED 2  // Example: 2 m/s; below that turbine is on stall
-#define RATED_SPEED  4
+#define CUT_IN_SPEED -60  // Example: 2 m/s; below that turbine is on stall
+#define RATED_SPEED  40
    // Example: 4 m/s below that and greater than CUT_IN_SPEED turbine is on
    // MPPT(torque)
-#define CUT_OUT_SPEED 6
+#define CUT_OUT_SPEED 60
    // Example: 6 m/s; below that turbine is on pitch control, greater than
    // that turbine must enter on emergency mode
 
    //The FSM constructor initializes the states objects and passes them the servo
     FSM::FSM(Servo& bladesServo)
-    : pitchControlState(bladesServo),  
+    : pitchControlState(bladesServo, "PitchControlState"),  
       stallState(bladesServo),
       torqueControlState(bladesServo),
       emergencyStopState(bladesServo) {
@@ -38,22 +38,23 @@ void FSM::handle() {
 
   // Decide next state
   State* next = nullptr;
-  if (windSpeed < CUT_IN_SPEED) {
+  if (windSpeed <= CUT_IN_SPEED) {
     next = &stallState;
-    Serial.println("FSM: switching to Stall");
-  } else if (windSpeed < RATED_SPEED) {
+    Serial.println("FSM: currently on Stall");
+  } else if (windSpeed <= RATED_SPEED) {
     next = &torqueControlState;
-    Serial.println("FSM: switching to Torque");
-  } else if (windSpeed < CUT_OUT_SPEED) {  ///// <
+    Serial.println("FSM: currently on Torque");
+  } else if (windSpeed <= CUT_OUT_SPEED) {  ///// <
     next = &pitchControlState;
-    Serial.println("FSM: switching to PitchControlState");
+    Serial.println("FSM: currently on PitchControlState");
   } else {
     next = &emergencyStopState;
   }
 
   // Transition if state changed
   if (next != currentState) {
-    Serial.println("FSM: Actual swicth");
+    Serial.printf("FSM: State changed to %s\n", next->getName().c_str());
+    telemetry_set_state(next->getName());
     currentState->onExit();
     currentState = next;
     currentState->reset();

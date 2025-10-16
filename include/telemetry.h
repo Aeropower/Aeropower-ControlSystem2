@@ -22,7 +22,7 @@ void telemetry_set_voltage(float voltage);
 void telemetry_set_current(float current);
 void telemetry_set_power(float power);
 void telemetry_set_blade_angle(int angle);
-void telemetry_set_state(char state);
+void telemetry_set_state(const std::string& state);
 void telemetry_get_snapshot(Telemetry& snap);
 
 

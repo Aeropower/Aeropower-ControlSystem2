@@ -6,11 +6,12 @@ using namespace std;
 
 class State {
  protected:
-  const char* stateName = "";
+  std::string stateName;
 
   bool finished = false;
 
  public:
+  explicit State(std::string name) : stateName(std::move(name)) {}
   virtual ~State() = default;
 
   // Called when entering the state
@@ -22,7 +23,7 @@ class State {
   // Main action of the state
   virtual void handle() = 0;
 
-  virtual const char* getName() const {return stateName;}
+  const std::string& getName() const { return stateName; }
 
   // Everytime we reset everything
   virtual void reset() = 0;

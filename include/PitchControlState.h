@@ -4,6 +4,7 @@
 
 #include "State.h"
 #include "gpio.h"
+#include <string>
 class PitchControlState : public State {
  private:
   Servo& blades;
@@ -17,10 +18,11 @@ class PitchControlState : public State {
   int outMin, outMax;
 
  public:
-  explicit PitchControlState(Servo& bladesRef, float kp = 0.5f,
+  explicit PitchControlState(Servo& bladesRef, std::string Name, float kp = 0.5f,
                              float ki = 0.01f, float kd = 0.0f, int outMin = 0,
                              int outMax = 180)
       : blades(bladesRef),
+        State(std::move(Name)),
         Kp(kp),
         Ki(ki),
         Kd(kd),
