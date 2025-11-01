@@ -6,10 +6,11 @@
 #include "esp_wifi.h"
 #include "fsm.h"
 #include "gpio.h"
+#include "lcd.h"
 #include "sensors.h"
 #include "telemetry.h"
-#include "lcd.h"
-// Objetos globales
+
+// Global objects
 Servo myServo;
 FSM* g_fsm = nullptr;
 
@@ -18,31 +19,31 @@ TaskHandle_t hLCD = nullptr;
 TaskHandle_t hFSM = nullptr;
 
 // -------- Tasks --------
-void SensorTask(void*) {  // Este task lee todos los sensores y actualiza la
-                          // struct telemetry
+void SensorTask(void*) {  // Reads sensors and updates telemetry
+                       
   initTelemetry();
   analogReadResolution(12);
   sensors_init();
 
-  const TickType_t period = pdMS_TO_TICKS(500);  
   for (;;) {
     sensors_poll();
-    vTaskDelay(period);
+    vTaskDelay(pdMS_TO_TICKS(1000));  // 100 Hz FSM
   }
 }
 
-void FSMTask(void*) {  // Maneja la máquina de estados
+void FSMTask(void*) {  // Manages the state machine
+  if (g_fsm) g_fsm->initFSM();
   for (;;) {
     if (g_fsm) g_fsm->handle();
-    vTaskDelay(pdMS_TO_TICKS(100));  // 100 Hz FSM
+    vTaskDelay(pdMS_TO_TICKS(1000));  // 100 Hz FSM
   }
 }
 
-void LCDTask(void*) {
+void LCDTask(void*) {  // Updates the LCD display
   lcd_init();
   for (;;) {
     update_lcd();
-    vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 
@@ -54,13 +55,15 @@ void setup() {
 
   myServo.attach(SERVO_PIN);
 
-  // Apagar wifi y bluetooth para disminuir el consumo de potencia
+  // Shut down WiFi and Bluetooth to reduce power consumption
+
+  // Shut down WiFi
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
   esp_wifi_stop();
   esp_wifi_deinit();
 
-  // Apaga y libera toda la RAM reservada para BLE
+  // Shut down Bluetooth
   esp_bt_controller_mem_release(ESP_BT_MODE_BLE);
   esp_bt_controller_disable();
   esp_bt_controller_deinit();
@@ -68,17 +71,14 @@ void setup() {
   static FSM fsm(myServo);
   g_fsm = &fsm;
 
-  xTaskCreatePinnedToCore(SensorTask, "SensorTask", 4096, nullptr, 3, &hSensor,
-                          0);  // Core 0
-  xTaskCreatePinnedToCore(LCDTask, "LCDTask", 4096, nullptr, 1, &hLCD,
-                          0);  // Core 0
-  xTaskCreatePinnedToCore(FSMTask, "FSMTask", 6144, nullptr, 3, &hFSM,
-                          1);  // Core 1
+  //Tasks creation
+  xTaskCreatePinnedToCore(SensorTask, "SensorTask", 4096, nullptr, 3, &hSensor, 0);  // Core 0
+  xTaskCreatePinnedToCore(LCDTask, "LCDTask", 4096, nullptr, 2, &hLCD, 0);  // Core 0
+  xTaskCreatePinnedToCore(FSMTask, "FSMTask", 6144, nullptr, 3, &hFSM, 1); //Core 1
 
-  Serial.println("Tareas creadas");
+  Serial.println("Tasks created");
 }
 
 void loop() {
-  // vacío: todo corre en tasks
-  
+  // Empty loop as all functionality is handled in tasks
 }

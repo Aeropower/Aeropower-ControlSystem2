@@ -1,6 +1,6 @@
 // EmergencyStop.h
 #pragma once
-#include "State.h"
+#include "state.h"
 #include <ESP32Servo.h>
 
 class EmergencyStop : public State {

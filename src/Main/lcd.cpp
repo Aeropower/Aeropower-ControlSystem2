@@ -35,8 +35,7 @@ void lcd_init() {
 }
 
 void update_lcd() {
-  
-  // Serial.println("lcd");
+  Serial.println("Updating LCD...");
   Telemetry t{};
   telemetry_get_snapshot(t);
   switch (state) {
@@ -44,7 +43,7 @@ void update_lcd() {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("WIND SPEED: ");
-      lcd.print(t.rpm);
+      lcd.print(t.wind_mps);
       break;
     case RPM:
       lcd.clear();
@@ -83,6 +82,7 @@ void update_lcd() {
       lcd.print(t.power);
       break;
   }
+  Serial.println("LCD Updated.");
 }
 
 LCD_STATE next(LCD_STATE present) {

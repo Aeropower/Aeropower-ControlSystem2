@@ -1,14 +1,13 @@
 #pragma once
 #include <ESP32Servo.h>
 
-#include "EmergencyStop.h"
-#include "PitchControlState.h"
-#include "Stall.h"
-#include "TorqueControl.h"
+#include "emergency_stop.h"
+#include "pitch_control.h"
+#include "stall.h"
+#include "torque_control.h"
 #include "gpio.h"
 #include "state.h"
-/*This FSM machine changes the turbine state based on the wind speed read from
-  the Modern Devices Rev. C anemometer*/
+/*This FSM machine changes the turbine state based on the RPM readed from the Hall sensor*/
 class FSM {
  protected:
   State* currentState = nullptr;
@@ -18,8 +17,6 @@ class FSM {
   TorqueControl torqueControlState;
   EmergencyStop emergencyStopState;
 
- private:
-  float windSpeed = 0.0;
 
  public:
   // Constructor that receives a Servo reference
@@ -29,5 +26,5 @@ class FSM {
 
   void reset();
 
-  void updateWindSpeed(float speed) { windSpeed = speed; }
+  void initFSM();
 };

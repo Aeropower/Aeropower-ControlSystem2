@@ -28,7 +28,7 @@ enum LCD_STATE {
 
 inline LiquidCrystal_I2C lcd(I2C_ADDR, I2C_NUM_COL,
                       I2C_NUM_ROWS);  // I2C address 0x27 for the LCD
-inline LCD_STATE state;
+inline volatile LCD_STATE state;
 inline volatile bool taken = false;
 
 LCD_STATE next(LCD_STATE present);
