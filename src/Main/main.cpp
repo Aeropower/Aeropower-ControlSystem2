@@ -51,7 +51,7 @@ void LCDTask(void*) {  // Updates the LCD display
 void setup() {
   Serial.begin(115200);
   delay(1000);
-  Serial.println("ESP32-S3 iniciado");
+  Serial.println("ESP32-S3 Turbine Control System Starting...");
 
   myServo.attach(SERVO_PIN);
 
