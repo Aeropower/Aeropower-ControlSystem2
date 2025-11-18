@@ -9,6 +9,9 @@
 // Called when entering state
 void TorqueControl::onEnter() {
   Serial.println("Entering TorqueControl State...");
+  Telemetry t{};
+  t.state = this->getName();
+  telemetry_set_state(t.state);
 }
 
 // Update the state logic

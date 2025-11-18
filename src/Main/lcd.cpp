@@ -26,11 +26,9 @@ void lcd_init() {
   lcd.print("Initializing...");
 
   pinMode(RIGHT_BUTTON, INPUT_PULLUP);
-  attachInterrupt(
-      digitalPinToInterrupt(RIGHT_BUTTON), buttonRight,
-      FALLING);  // Esto hay que modificarlo segun se conecte el boton
+  attachInterrupt(digitalPinToInterrupt(RIGHT_BUTTON), buttonRight, FALLING);
   pinMode(LEFT_BUTTON, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(LEFT_BUTTON), buttonRight, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LEFT_BUTTON), buttonLeft, FALLING);
   delay(500);
 }
 

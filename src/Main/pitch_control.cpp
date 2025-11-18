@@ -46,19 +46,24 @@ void getPIDGains(float wind, const PID_Gains_t* lut, int size, float* Kp_out,
   *Kp_out = lut[0].Kp;
   *Ki_out = lut[0].Ki;
 }
+
 // Called when entering the state
 void PitchControlState::onEnter() {
   Serial.println("Entering PitchControlState...");
+  Telemetry t{};
+  t.state = this->getName();
+  telemetry_set_state(t.state);
   integral = 0.0;
   prevErr = 0.0;
   lastMs = millis();
 }
 
+
 // Called when exiting the state
 void PitchControlState::onExit() {
   Serial.println("Exiting PitchControlState...");
-  //Let the duty cycle of the sepic converter to be the duty cycle at the rated RPM's
-  
+  // Let the duty cycle of the sepic converter to be the duty cycle at the rated
+  // RPM's
 }
 
 // Main action of the state (called repeatedly in FSM)

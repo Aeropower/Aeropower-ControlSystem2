@@ -1,7 +1,7 @@
 #pragma once
-#include <string>
 #include <iostream>
-struct Telemetry{
+#include <string>
+struct Telemetry {
   float wind_mps;
   float rpm;
   float voltage;
@@ -11,7 +11,7 @@ struct Telemetry{
   std::string state;
 };
 
-//Global access
+// Global access
 extern Telemetry telemetry;
 
 void initTelemetry();
@@ -24,6 +24,3 @@ void telemetry_set_power(float power);
 void telemetry_set_blade_angle(int angle);
 void telemetry_set_state(const std::string& state);
 void telemetry_get_snapshot(Telemetry& snap);
-
-
-

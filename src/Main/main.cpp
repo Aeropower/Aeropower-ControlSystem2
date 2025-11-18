@@ -10,6 +10,15 @@
 #include "sensors.h"
 #include "telemetry.h"
 
+// Authors:
+// Hiram Raul Rodriguez Hernandez
+// Ulises Medina Urtado
+// Sergio Da Silva
+
+#ifndef USE_PINNED_TASKS
+#define USE_PINNED_TASKS 0  // set to 0 to let the scheduler pick cores
+#endif
+
 // Global objects
 Servo myServo;
 FSM* g_fsm = nullptr;
@@ -20,7 +29,7 @@ TaskHandle_t hFSM = nullptr;
 
 // -------- Tasks --------
 void SensorTask(void*) {  // Reads sensors and updates telemetry
-                       
+
   initTelemetry();
   analogReadResolution(12);
   sensors_init();
@@ -35,7 +44,7 @@ void FSMTask(void*) {  // Manages the state machine
   if (g_fsm) g_fsm->initFSM();
   for (;;) {
     if (g_fsm) g_fsm->handle();
-    vTaskDelay(pdMS_TO_TICKS(1000));  // 100 Hz FSM
+    vTaskDelay(pdMS_TO_TICKS(100));  // 100 Hz FSM
   }
 }
 
@@ -71,10 +80,19 @@ void setup() {
   static FSM fsm(myServo);
   g_fsm = &fsm;
 
-  //Tasks creation
-  xTaskCreatePinnedToCore(SensorTask, "SensorTask", 4096, nullptr, 3, &hSensor, 0);  // Core 0
-  xTaskCreatePinnedToCore(LCDTask, "LCDTask", 4096, nullptr, 2, &hLCD, 0);  // Core 0
-  xTaskCreatePinnedToCore(FSMTask, "FSMTask", 6144, nullptr, 3, &hFSM, 1); //Core 1
+  // Tasks creation
+#if USE_PINNED_TASKS
+  xTaskCreatePinnedToCore(SensorTask, "SensorTask", 4096, nullptr, 2, &hSensor,
+                          0);  // Core 0
+  xTaskCreatePinnedToCore(LCDTask, "LCDTask", 4096, nullptr, 1, &hLCD,
+                          0);  // Core 0
+  xTaskCreatePinnedToCore(FSMTask, "FSMTask", 6144, nullptr, 3, &hFSM,
+                          1);  // Core 1
+#else
+  xTaskCreate(SensorTask, "SensorTask", 4096, nullptr, 2, &hSensor);
+  xTaskCreate(LCDTask, "LCDTask", 4096, nullptr, 1, &hLCD);
+  xTaskCreate(FSMTask, "FSMTask", 6144, nullptr, 3, &hFSM);
+#endif
 
   Serial.println("Tasks created");
 }

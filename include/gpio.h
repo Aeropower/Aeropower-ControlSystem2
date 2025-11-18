@@ -6,16 +6,13 @@
 #define I2C_NUM_ROWS (2)
 #define SERVO_PIN (21)
 #define RPM_PUSHBUTTON_PIN (13)
-#define ANEMOMETER_RV (1)  // ADC1_1 (GPIO 1)
-#define ANEMOMETER_TMP (2) // ADC1_2 (GPIO 2)
-#define HALL_SENSOR (8)
-#define LEFT_BUTTON (7)
-#define RIGHT_BUTTON (15)
+#define ANEMOMETER_RV (1)   // ADC1_1 (GPIO 1)
+#define ANEMOMETER_TMP (2)  // ADC1_2 (GPIO 2)
+#define HALL_SENSOR (41)
+#define LEFT_BUTTON (15)
+#define RIGHT_BUTTON (7)
 #define PWM_PIN (47)
-#define RELAY_1_PIN (4)
-#define RELAY_2_PIN (16)
+//#define RELAY_1_PIN (4)
+//#define RELAY_2_PIN (16)
 
-
-#endif //GPIO_H_
-
-
+#endif  // GPIO_H_

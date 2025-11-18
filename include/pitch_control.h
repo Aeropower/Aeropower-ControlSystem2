@@ -4,8 +4,8 @@
 
 #include <string>
 
-#include "state.h"
 #include "gpio.h"
+#include "state.h"
 
 // Look up table for PID
 typedef struct {
@@ -44,13 +44,12 @@ class PitchControlState : public State {
   float prevErr = 0.0;
   float integral = 0.0;
   unsigned long lastMs = 0;
-  const int outMin = 0;    // Minimum blade angle example
-  const int outMax = 90;   // Maximum blade angle example
-
+  const int outMin = 0;   // Minimum blade angle example
+  const int outMax = 90;  // Maximum blade angle example
 
  public:
   explicit PitchControlState(Servo& bladesRef)
-      : State("PitchControlState"), blades(bladesRef) {}
+      : State("Pitch"), blades(bladesRef) {}
 
   ~PitchControlState() override = default;
   // Called when entering the state

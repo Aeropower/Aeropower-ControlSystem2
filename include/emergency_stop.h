@@ -1,16 +1,18 @@
 // EmergencyStop.h
 #pragma once
-#include "state.h"
 #include <ESP32Servo.h>
 
-class EmergencyStop : public State {
+#include "state.h"
 
-public:
-  explicit EmergencyStop(Servo& blades) : State("EmergencyStop"), blades(blades) {}
-  void onEnter() override {}
+class EmergencyStop : public State {
+ public:
+  explicit EmergencyStop(Servo& blades)
+      : State("Emergency"), blades(blades) {}
+  void onEnter() override;
   void onExit() override {}
   void handle() override {}
   void reset() override {}
-  private:
+
+ private:
   Servo& blades;
 };

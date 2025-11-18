@@ -3,7 +3,7 @@
 #include <ESP32Servo.h>
 
 #include "state.h"
-
+extern uint64_t sleepTime;
 class Stall : public State {
  public:
   explicit Stall(Servo& blades) : State("Stall"), blades(blades) {}
@@ -11,6 +11,7 @@ class Stall : public State {
   void onExit() override;
   void handle() override;
   void reset() override;
-  private:
+
+ private:
   Servo& blades;
 };

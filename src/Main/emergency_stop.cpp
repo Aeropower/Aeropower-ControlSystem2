@@ -6,6 +6,9 @@
 //Called when entering the state
 void EmergencyStop::onEnter(){
   Serial.println("Entering Emergency Stop State...");
+  Telemetry t{};
+  t.state = this->getName();
+  telemetry_set_state(t.state);
   //Move blades to emergency stop angle
   int currentAngle = blades.read();
   moveServoSmooth(blades, currentAngle, STALL_ANGLE_DEGREES, 1, 10);
