@@ -58,7 +58,6 @@ void PitchControlState::onEnter() {
   lastMs = millis();
 }
 
-
 // Called when exiting the state
 void PitchControlState::onExit() {
   Serial.println("Exiting PitchControlState...");

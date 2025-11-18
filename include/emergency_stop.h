@@ -6,8 +6,7 @@
 
 class EmergencyStop : public State {
  public:
-  explicit EmergencyStop(Servo& blades)
-      : State("Emergency"), blades(blades) {}
+  explicit EmergencyStop(Servo& blades) : State("Emergency"), blades(blades) {}
   void onEnter() override;
   void onExit() override {}
   void handle() override {}

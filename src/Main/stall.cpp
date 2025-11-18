@@ -9,10 +9,11 @@
 #include "gpio.h"
 #include "telemetry.h"
 
-uint64_t sleepTime = 10000000;      // microseconds (10 seconds)
-static bool firstSleep = true;      // track first sleep per state entry
+uint64_t sleepTime = 10000000;  // microseconds (10 seconds)
+static bool firstSleep = true;  // track first sleep per state entry
 static unsigned long lastWakeMs = 0;
-static const unsigned long AWAKE_WINDOW_MS = 200;  // stay awake briefly after wake
+static const unsigned long AWAKE_WINDOW_MS =
+    200;  // stay awake briefly after wake
 
 // Called when entering the state
 void Stall::onEnter() {
@@ -33,9 +34,9 @@ void Stall::onEnter() {
   // Enable GPIO wakeup on the LCD buttons (active low)
   pinMode(RIGHT_BUTTON, INPUT_PULLUP);
   pinMode(LEFT_BUTTON, INPUT_PULLUP);
- // gpio_wakeup_enable((gpio_num_t)RIGHT_BUTTON, GPIO_INTR_LOW_LEVEL);
- // gpio_wakeup_enable((gpio_num_t)LEFT_BUTTON, GPIO_INTR_LOW_LEVEL);
- // esp_sleep_enable_gpio_wakeup();
+  // gpio_wakeup_enable((gpio_num_t)RIGHT_BUTTON, GPIO_INTR_LOW_LEVEL);
+  // gpio_wakeup_enable((gpio_num_t)LEFT_BUTTON, GPIO_INTR_LOW_LEVEL);
+  // esp_sleep_enable_gpio_wakeup();
 }
 
 // Update the state logic
@@ -57,21 +58,21 @@ void Stall::handle() {
                 sleepTime / 1000000.0f);
 
   Serial.flush();
- /**esp_err_t getErr = esp_light_sleep_start();
-  if (getErr != ESP_OK) {
-    Serial.printf("Error entering light sleep mode: %d\n", getErr);
-    return;
-  }
-  const esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
-  Serial.printf("Stall wake cause: %d\n", static_cast<int>(cause));
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(200);  // So the other core can read sensors and then see if
-               // the turbine is still on stall
+  /**esp_err_t getErr = esp_light_sleep_start();
+   if (getErr != ESP_OK) {
+     Serial.printf("Error entering light sleep mode: %d\n", getErr);
+     return;
+   }
+   const esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
+   Serial.printf("Stall wake cause: %d\n", static_cast<int>(cause));
+   digitalWrite(LED_BUILTIN, HIGH);
+   delay(200);  // So the other core can read sensors and then see if
+                // the turbine is still on stall
 
-  // Mark wake time to honor the awake window before re-entering sleep
-  firstSleep = false;
-  lastWakeMs = millis();
-  */
+   // Mark wake time to honor the awake window before re-entering sleep
+   firstSleep = false;
+   lastWakeMs = millis();
+   */
 }
 
 // Called when exiting the state

@@ -12,7 +12,7 @@
 #define LEFT_BUTTON (15)
 #define RIGHT_BUTTON (7)
 #define PWM_PIN (47)
-//#define RELAY_1_PIN (4)
-//#define RELAY_2_PIN (16)
+// #define RELAY_1_PIN (4)
+// #define RELAY_2_PIN (16)
 
 #endif  // GPIO_H_

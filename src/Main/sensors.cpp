@@ -139,5 +139,5 @@ void sensors_poll() {
   const float rpm = rps * 60.0;     // Convertirlo a minutos
 
   telemetry_set_rpm(rpm);  // Normally we use this one
-  //telemetry_set_rpm(sineWindfunc());  // Testing purposes
+  // telemetry_set_rpm(sineWindfunc());  // Testing purposes
 }
