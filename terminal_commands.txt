@@ -1,11 +1,15 @@
 #macOS/Linux
+//Build and upload
 ~/.platformio/penv/bin/pio --version
 ~/.platformio/penv/bin/pio run -t upload
 ~/.platformio/penv/bin/pio device monitor
 
-pio run -t upload
-pio device monitor
-
+//Test 
+//Native
+~/.platformio/penv/bin/pio test -e native
+~/.platformio/penv/bin/pio test -vvv
+//Este me funciono
+~/.platformio/penv/bin/pio test -e native -f test_native -vvv --without-uploading
 
 
 
