@@ -1,9 +1,17 @@
 -Assemble push buttons and connect them to MCU and test LCD module DONE
+
 -Look for a better debouncing mechanism like a SR latch
+
 -Figure out how to put the MCU into light sleep on stall DONE
+
 -Start figuring out the emergency control
--Build a proper interface for the temperature sensor and the ADC and calibrate
+
+-Build a proper interface for the temperature, current and voltage sensor.
+
+-Calibrate ADC.
+
 -Test rpm and pulse counter. DONE
--Test LCD and Sensors tasks to see if we can get data from the turbine. 
+
+-Test LCD and Sensors tasks to see if we can get data from the turbine.  DONE
 
 -Divide FSM and test each state separately, then check if they work together. 

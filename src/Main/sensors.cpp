@@ -5,7 +5,8 @@
 #include "gpio.h"
 #include "telemetry.h"
 #define PULSES_PER_REV 1
-#define POLL_WINDOW_S 0.5f  // 500 ms
+#define POLL_WINDOW_S 0.5f      // 500 ms
+#define RPM_UPDATE_WINDOW 2.0f  // segundos
 
 // -------- Wind logic --------
 static inline float get_wind_speed() {  // Raw es el valor leido del ADC
@@ -85,7 +86,7 @@ int sineWindfunc() {
 
   Serial.println(scaled + 90);
 
-  delay(50);  // print every 50 ms
+  delay(50);             // print every 50 ms
   return scaled + 90.0;  // offset to keep positive RPM
 }
 
@@ -122,7 +123,10 @@ void sensors_init() {
 }
 
 void sensors_poll() {
+  // RPM calculation
   static uint64_t last_us = esp_timer_get_time();
+  static float rpm_accum_counts = 0.0f;
+  static float rpm_accum_time = 0.0f;
   int16_t counter = 0;
   pcnt_get_counter_value(PCNT_UNIT_USED, &counter);
   pcnt_counter_clear(PCNT_UNIT_USED);
@@ -131,11 +135,35 @@ void sensors_poll() {
   float window_s = (now_us - last_us) / 1e6f;
   last_us = now_us;
 
-  float rps = (counter / (float)PULSES_PER_REV) / window_s;
-  telemetry_set_rpm(rps * 60.0f);
-  Serial.print("RPM: ");
-  Serial.println(rps * 60.0f);
+  rpm_accum_counts += counter;
+  rpm_accum_time += window_s;
 
-  telemetry_set_wind(get_wind_speed()); 
- //For testing telemetry_set_wind(sineWindfunc()); 
+  if (rpm_accum_time >= RPM_UPDATE_WINDOW) {
+    float rps = 0.0f;
+    if (rpm_accum_time > 0.0f) {
+      rps = (rpm_accum_counts / (float)PULSES_PER_REV) / rpm_accum_time;
+    }
+    telemetry_set_rpm(rps * 60.0f);
+    Serial.print("RPM: ");
+    Serial.println(rps * 60.0f);
+    rpm_accum_counts = 0.0f;
+    rpm_accum_time = 0.0f;
+  }
+
+  // Wind speed update
+  telemetry_set_wind(get_wind_speed());
+  // For testing telemetry_set_wind(sineWindfunc());
+
+  // Current at the generator update
+  // int rawCurrent = analogRead(CURRENT_SENSOR);
+  // telemetry_set_current(adc_to_current(rawCurrent));
+
+  // Voltage at the generator update
+  // int rawVoltage = analogRead(VOLTAGE_SENSOR);
+  // telemetry_set_voltage(adc_to_voltage(rawVoltage));
+
+  // Power calculation
+  // Telemetry t{};
+  // telemetry_get_snapshot(t);
+  // float power = t.voltage * t.current;
 }

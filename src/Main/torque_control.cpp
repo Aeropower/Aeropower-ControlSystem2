@@ -23,7 +23,15 @@ void TorqueControl::onEnter() {
 void TorqueControl::handle() {
   // Read RPM from telemetry
   Telemetry t{};
+
   telemetry_get_snapshot(t);
+
+  /*Here we use a LUT to get the duty cycle based on RPM, problem is that
+  because the load isnt constant we cant use a single duty cycle for a given
+  RPM, so we will implement a P&O algorithm to adjust the duty cycle to find the
+  maximum power point. For the competition with constant load we can use the LUT
+  directly.
+
   const float rpm = t.rpm;
 
   // Get Duty Cycle from LUT
@@ -34,11 +42,42 @@ void TorqueControl::handle() {
   ledcWrite(pwmChannel, static_cast<uint32_t>(dutyCycle));
   Serial.printf("TorqueControl State: RPM=%.2f, DutyCycle=%.2f\n", rpm,
                 dutyCycle);
+                */
+
+  // Use a P&O algorithm to adjust the duty cycle for maximum power point
+  // tracking when charging varying loads
+
+  float currentPower = t.power;
+  if (currentPower > previousPower) {
+  } else {
+    sign = -sign;
+  }
+  // Apply perturbation
+  duty += sign * deltaDutyCycle;
+  duty = constrain(duty, 0.0f, 1.0f);  // We have to check limits experimentaly
+
+  // Check if VBus <= 24V
+  if (t.voltage > 24.0f) {
+    duty -= deltaDutyCycle;  // Decrease duty cycle
+  }
+  duty = constrain(duty, 0.0f, 1.0f);
+
+  // Apply new duty cycle
+  int pwmValue = static_cast<int>(duty * 1023);  // Assuming 10-bit resolution
+  ledcWrite(pwmChannel, pwmValue);
+
+  Serial.printf("TorqueControl State: Power=%.2f, DutyCycle=%.2f\n",
+                currentPower, duty);
+
+  previousPower = currentPower;
 }
 
 // Called when exiting state
 void TorqueControl::onExit() {
   Serial.println("Exiting TorqueControl State...");
+  previousPower = 0.0f;
+  duty = 0.3f;  // Reset to initial duty cycle
+  sign = 1;
 }
 
 // Function to get duty cycle from RPM using LUT
@@ -75,6 +114,4 @@ void getDutyCycle(float rpm, const DutyCycle_t* lut, int size,
 }
 
 // Reset state variables
-void TorqueControl::reset() {
-  // Nothing to reset for now
-}
+void TorqueControl::reset() {}

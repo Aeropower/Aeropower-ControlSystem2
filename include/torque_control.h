@@ -10,10 +10,14 @@ class TorqueControl : public State {
   void onEnter() override;
   void onExit() override;
   void handle() override;
-  void reset() override;
+ void reset() override;
 
  private:
   Servo& servo;
+  float previousPower = 0.0f;
+  float deltaDutyCycle = 0.01f;
+  int sign = 1;
+  float duty = 0.3f;  // To begin
 };
 
 // Look up table for Duty Cycle based on RPM
