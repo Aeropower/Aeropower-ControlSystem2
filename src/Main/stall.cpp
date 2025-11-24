@@ -34,9 +34,9 @@ void Stall::onEnter() {
   // Enable GPIO wakeup on the LCD buttons (active low)
   pinMode(RIGHT_BUTTON, INPUT_PULLUP);
   pinMode(LEFT_BUTTON, INPUT_PULLUP);
-  // gpio_wakeup_enable((gpio_num_t)RIGHT_BUTTON, GPIO_INTR_LOW_LEVEL);
-  // gpio_wakeup_enable((gpio_num_t)LEFT_BUTTON, GPIO_INTR_LOW_LEVEL);
-  // esp_sleep_enable_gpio_wakeup();
+  gpio_wakeup_enable((gpio_num_t)RIGHT_BUTTON, GPIO_INTR_LOW_LEVEL);
+  gpio_wakeup_enable((gpio_num_t)LEFT_BUTTON, GPIO_INTR_LOW_LEVEL);
+  esp_sleep_enable_gpio_wakeup();
 }
 
 // Update the state logic
@@ -58,7 +58,7 @@ void Stall::handle() {
                 sleepTime / 1000000.0f);
 
   Serial.flush();
-  /**esp_err_t getErr = esp_light_sleep_start();
+  esp_err_t getErr = esp_light_sleep_start();
    if (getErr != ESP_OK) {
      Serial.printf("Error entering light sleep mode: %d\n", getErr);
      return;
@@ -72,17 +72,16 @@ void Stall::handle() {
    // Mark wake time to honor the awake window before re-entering sleep
    firstSleep = false;
    lastWakeMs = millis();
-   */
 }
 
 // Called when exiting the state
 void Stall::onExit() {
   Serial.println("Exiting Stall State...");
   // Disable wake sources configured for this state
-  // esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
-  // gpio_wakeup_disable((gpio_num_t)RIGHT_BUTTON);
-  // gpio_wakeup_disable((gpio_num_t)LEFT_BUTTON);
-  // esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
+  esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
+  gpio_wakeup_disable((gpio_num_t)RIGHT_BUTTON);
+  gpio_wakeup_disable((gpio_num_t)LEFT_BUTTON);
+  esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
 }
 
 // Reset function (not used in this state)

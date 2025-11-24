@@ -14,3 +14,4 @@ const int pwmPin = 5;  // GPIO connected to MOSFET gate
 const int pwmFreq = 20000;     // 20 kHz switching frequency
 const int pwmChannel = 0;      // High-speed channel
 const int pwmResolution = 10;  // 10-bit resolution (0-1023)
+ 

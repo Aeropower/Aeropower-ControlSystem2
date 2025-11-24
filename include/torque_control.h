@@ -44,3 +44,4 @@ void getDutyCycle(float rpm, const DutyCycle_t* lut, int size,
 
 static const uint8_t DUTY_CYCLE_LUT_LEN =
     sizeof(DUTY_LUT) / sizeof(DutyCycle_t);
+   

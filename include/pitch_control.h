@@ -1,7 +1,7 @@
 #ifndef INCLUDE_PITCH_CONTROL_STATE_H_
 #define INCLUDE_PITCH_CONTROL_STATE_H_
 #include <ESP32Servo.h>
-
+#define RATED_SPEED_RPM 2000
 #include <string>
 
 #include "gpio.h"
@@ -38,7 +38,7 @@ static const uint8_t PID_GAIN_LUT_LEN =
 class PitchControlState : public State {
  private:
   Servo& blades;
-  int targetRpm = 0.0;
+  int targetRpm = RATED_SPEED_RPM;
   float Kp, Ki, Kd;
 
   float prevErr = 0.0;

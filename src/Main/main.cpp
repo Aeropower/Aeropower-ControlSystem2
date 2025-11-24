@@ -36,7 +36,7 @@ void SensorTask(void*) {  // Reads sensors and updates telemetry
 
   for (;;) {
     sensors_poll();
-    vTaskDelay(pdMS_TO_TICKS(1000));  // 100 Hz FSM
+    vTaskDelay(pdMS_TO_TICKS(500));  // run every 500 ms 
   }
 }
 

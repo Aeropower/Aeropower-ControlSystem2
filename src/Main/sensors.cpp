@@ -83,10 +83,10 @@ int sineWindfunc() {
   // Scale if you want e.g. [-100, 100]
   float scaled = 100.0f * sineVal;
 
-  Serial.println(scaled);
+  Serial.println(scaled + 90);
 
   delay(50);  // print every 50 ms
-  return scaled;
+  return scaled + 90.0;  // offset to keep positive RPM
 }
 
 void sensors_init() {
@@ -122,22 +122,20 @@ void sensors_init() {
 }
 
 void sensors_poll() {
-  // Serial.println("sensor");
-  // Wind sensor
-  telemetry_set_wind(get_wind_speed());  // Normally we use this
-  // telemetry_set_wind(sineWindfunc());
-
-  // Get hall effect sensor pulses count
+  static uint64_t last_us = esp_timer_get_time();
   int16_t counter = 0;
-  pcnt_get_counter_value(
-      PCNT_UNIT_USED,
-      &counter);  // guarda el valor del counter en la variable counter
-
+  pcnt_get_counter_value(PCNT_UNIT_USED, &counter);
   pcnt_counter_clear(PCNT_UNIT_USED);
-  const float rps = ((float)counter / PULSES_PER_REV) /
-                    POLL_WINDOW_S;  // Sacar las revoluciones por segundos
-  const float rpm = rps * 60.0;     // Convertirlo a minutos
 
-  telemetry_set_rpm(rpm);  // Normally we use this one
-  // telemetry_set_rpm(sineWindfunc());  // Testing purposes
+  uint64_t now_us = esp_timer_get_time();
+  float window_s = (now_us - last_us) / 1e6f;
+  last_us = now_us;
+
+  float rps = (counter / (float)PULSES_PER_REV) / window_s;
+  telemetry_set_rpm(rps * 60.0f);
+  Serial.print("RPM: ");
+  Serial.println(rps * 60.0f);
+
+  telemetry_set_wind(get_wind_speed()); 
+ //For testing telemetry_set_wind(sineWindfunc()); 
 }

@@ -1,7 +1,7 @@
 #include "torque_control.h"
 
 #include <Arduino.h>  // For millis(), constrain(), etc.
-
+#define TORQUE_CONTROL_ANGLE_DEGREES 45
 #include "common.h"
 #include "gpio.h"
 #include "telemetry.h"
@@ -12,6 +12,11 @@ void TorqueControl::onEnter() {
   Telemetry t{};
   t.state = this->getName();
   telemetry_set_state(t.state);
+  int currentAngle = servo.read();
+  moveServoSmooth(servo, currentAngle, TORQUE_CONTROL_ANGLE_DEGREES, 1, 10);
+  // Set an initial blade angle for torque control
+  t.blade_angle = TORQUE_CONTROL_ANGLE_DEGREES;
+  telemetry_set_blade_angle(servo.read());
 }
 
 // Update the state logic

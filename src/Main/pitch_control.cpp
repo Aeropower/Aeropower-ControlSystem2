@@ -74,7 +74,7 @@ void PitchControlState::handle() {
   float dt = (now - lastMs) / 1000.0f;  // convert ms to seconds
   lastMs = now;
   float rpm = t.rpm;
-  float error = targetRpm - rpm;
+  float error = rpm - targetRpm;
 
   integral += error * dt;
   // float derivative = (error - prevErr) / dt;
