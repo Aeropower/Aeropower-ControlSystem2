@@ -3,6 +3,7 @@
 ~/.platformio/penv/bin/pio --version
 ~/.platformio/penv/bin/pio run -t upload
 ~/.platformio/penv/bin/pio device monitor
+~/.platformio/penv/bin/pio run
 
 //Test 
 //Native
