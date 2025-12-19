@@ -11,6 +11,7 @@
  * Hall sensor*/
 class FSM {
  protected:
+  Servo& bladesServo;
   State* currentState = nullptr;
 
   PitchControlState pitchControlState;

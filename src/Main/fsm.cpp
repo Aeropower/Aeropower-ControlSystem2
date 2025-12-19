@@ -13,7 +13,8 @@
 
 // The FSM constructor initializes the states objects and passes them the servo
 FSM::FSM(Servo& bladesServo)
-    : pitchControlState(bladesServo),
+    : bladesServo(bladesServo),
+      pitchControlState(bladesServo),
       stallState(bladesServo),
       torqueControlState(bladesServo),
       emergencyStopState(bladesServo) {}
@@ -25,7 +26,7 @@ void FSM::initFSM() {
 
   int currentAngle = bladesServo.read();
   moveServoSmooth(bladesServo, currentAngle, 0, 1,
-                    10);  // Ensure servo is at 0 degrees at start
+                  10);  // Ensure servo is at 0 degrees at start
   // Start on Stall
   currentState = &stallState;
   currentState->onEnter();

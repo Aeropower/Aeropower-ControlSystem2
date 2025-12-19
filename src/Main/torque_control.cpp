@@ -30,7 +30,7 @@ void TorqueControl::handle() {
   because the load isnt constant we cant use a single duty cycle for a given
   RPM, so we will implement a P&O algorithm to adjust the duty cycle to find the
   maximum power point. For the competition with constant load we can use the LUT
-  directly.
+  directly.*/
 
   const float rpm = t.rpm;
 
@@ -42,11 +42,11 @@ void TorqueControl::handle() {
   ledcWrite(pwmChannel, static_cast<uint32_t>(dutyCycle));
   Serial.printf("TorqueControl State: RPM=%.2f, DutyCycle=%.2f\n", rpm,
                 dutyCycle);
-                */
+                
 
   // Use a P&O algorithm to adjust the duty cycle for maximum power point
   // tracking when charging varying loads
-
+    /*
   float currentPower = t.power;
   if (currentPower > previousPower) {
   } else {
@@ -70,6 +70,7 @@ void TorqueControl::handle() {
                 currentPower, duty);
 
   previousPower = currentPower;
+  */
 }
 
 // Called when exiting state

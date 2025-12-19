@@ -17,6 +17,4 @@ void EmergencyStop::onEnter() {
   // Set PWM to a duty cycle where the SEPIC converter forces generator to brake
   ledcWrite(pwmChannel, 1023);  // Max duty cycle to force braking
 
-  // Activate necessary relays or mechanisms to stop the turbine safely and to
-  // disconnect MCU from the turbine generator to the capacitor bank
 }
