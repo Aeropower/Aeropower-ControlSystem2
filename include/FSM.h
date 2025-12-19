@@ -13,11 +13,14 @@ class FSM {
  protected:
   Servo& bladesServo;
   State* currentState = nullptr;
+  hw_timer_t* timer = nullptr;
+  static FSM* instance;
 
   PitchControlState pitchControlState;
   Stall stallState;
   TorqueControl torqueControlState;
   EmergencyStop emergencyStopState;
+  volatile bool transition_ready = false;
 
  public:
   // Constructor that receives a Servo reference
@@ -28,4 +31,6 @@ class FSM {
   void reset();
 
   void initFSM();
+
+  static void IRAM_ATTR onTimerISR();
 };
