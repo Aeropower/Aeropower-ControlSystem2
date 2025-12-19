@@ -1,5 +1,9 @@
 #include "lcd.h"
 
+#include <Arduino.h>
+
+#include "common.h"
+
 void IRAM_ATTR buttonRight() {
   if (taken) {
     return;
@@ -8,6 +12,14 @@ void IRAM_ATTR buttonRight() {
   }
   state = next(state);
   taken = false;
+
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  xSemaphoreGiveFromISR(xLCDSemaphore, &xHigherPriorityTaskWoken);
+  if (xHigherPriorityTaskWoken) {
+    portYIELD_FROM_ISR();
+  }
+
+  return;
 }
 
 void IRAM_ATTR buttonLeft() {
@@ -18,6 +30,13 @@ void IRAM_ATTR buttonLeft() {
   }
   state = previous(state);
   taken = false;
+
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  xSemaphoreGiveFromISR(xLCDSemaphore, &xHigherPriorityTaskWoken);
+  if (xHigherPriorityTaskWoken) {
+    portYIELD_FROM_ISR();
+  }
+  return;
 }
 
 void lcd_init() {

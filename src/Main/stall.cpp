@@ -8,12 +8,28 @@
 #include "driver/gpio.h"
 #include "gpio.h"
 #include "telemetry.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 uint64_t sleepTime = 10000000;  // microseconds (10 seconds)
 static bool firstSleep = true;  // track first sleep per state entry
 static unsigned long lastWakeMs = 0;
 static const unsigned long AWAKE_WINDOW_MS =
-    200;  // stay awake briefly after wake
+    500;  // stay awake briefly after wake
+static bool gpioWakeArmed = true;
+static bool buttonIrqEnabled = true;
+
+static void setButtonInterrupts(bool enable) {
+  if (enable && !buttonIrqEnabled) {
+    gpio_intr_enable((gpio_num_t)RIGHT_BUTTON);
+    gpio_intr_enable((gpio_num_t)LEFT_BUTTON);
+    buttonIrqEnabled = true;
+  } else if (!enable && buttonIrqEnabled) {
+    gpio_intr_disable((gpio_num_t)RIGHT_BUTTON);
+    gpio_intr_disable((gpio_num_t)LEFT_BUTTON);
+    buttonIrqEnabled = false;
+  }
+}
 
 // Called when entering the state
 void Stall::onEnter() {
@@ -37,13 +53,24 @@ void Stall::onEnter() {
   gpio_wakeup_enable((gpio_num_t)RIGHT_BUTTON, GPIO_INTR_LOW_LEVEL);
   gpio_wakeup_enable((gpio_num_t)LEFT_BUTTON, GPIO_INTR_LOW_LEVEL);
   esp_sleep_enable_gpio_wakeup();
+  gpioWakeArmed = true;
+  setButtonInterrupts(true);
 }
 
 // Update the state logic
 void Stall::handle() {
   // Keep a small awake window after wake-up so other tasks/ISRs can run
-  if (!firstSleep && (millis() - lastWakeMs) < AWAKE_WINDOW_MS) {
+  const unsigned long now = millis();
+  if (!firstSleep && (now - lastWakeMs) < AWAKE_WINDOW_MS) {
     return;
+  }
+
+  if (!gpioWakeArmed) {
+    gpio_wakeup_enable((gpio_num_t)RIGHT_BUTTON, GPIO_INTR_LOW_LEVEL);
+    gpio_wakeup_enable((gpio_num_t)LEFT_BUTTON, GPIO_INTR_LOW_LEVEL);
+    esp_sleep_enable_gpio_wakeup();
+    gpioWakeArmed = true;
+    setButtonInterrupts(true);
   }
 
   // Arm timer each cycle in case sleepTime is updated or a prior arm failed
@@ -53,18 +80,30 @@ void Stall::handle() {
     return;
   }
 
-  digitalWrite(LED_BUILTIN, LOW);
-  Serial.printf("Stall State: Entering light sleep for %.1f s...\n",
-                sleepTime / 1000000.0f);
+  if (xSemaphoreTake(xLCDSemaphore, 0) == pdTRUE) {
+    Serial.println("Stall State: LCD button pressed, staying awake.");
+    esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_TIMER);
+    esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
+    gpioWakeArmed = false;
+    setButtonInterrupts(false);
+    firstSleep = true;           // ensure awake window when we next sleep
+    lastWakeMs = now;            // remain awake this cycle
+    vTaskDelay(1);               // let other tasks service the event
+    return;
+  }
 
-  Serial.flush();
+  digitalWrite(LED_BUILTIN, LOW);
   esp_err_t getErr = esp_light_sleep_start();
    if (getErr != ESP_OK) {
      Serial.printf("Error entering light sleep mode: %d\n", getErr);
      return;
    }
    const esp_sleep_wakeup_cause_t cause = esp_sleep_get_wakeup_cause();
-   Serial.printf("Stall wake cause: %d\n", static_cast<int>(cause));
+   if (cause == ESP_SLEEP_WAKEUP_GPIO) {
+     esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
+     gpioWakeArmed = false;
+     setButtonInterrupts(false);
+   }
    digitalWrite(LED_BUILTIN, HIGH);
    delay(200);  // So the other core can read sensors and then see if
                 // the turbine is still on stall
@@ -82,6 +121,7 @@ void Stall::onExit() {
   gpio_wakeup_disable((gpio_num_t)RIGHT_BUTTON);
   gpio_wakeup_disable((gpio_num_t)LEFT_BUTTON);
   esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_GPIO);
+  setButtonInterrupts(true);
 }
 
 // Reset function (not used in this state)

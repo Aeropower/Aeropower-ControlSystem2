@@ -9,6 +9,10 @@
 #include "lcd.h"
 #include "sensors.h"
 #include "telemetry.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
+#include "common.h"
 
 // Authors:
 // Hiram Raul Rodriguez Hernandez
@@ -22,6 +26,7 @@
 // Global objects
 Servo myServo;
 FSM* g_fsm = nullptr;
+SemaphoreHandle_t xLCDSemaphore = nullptr;
 
 TaskHandle_t hSensor = nullptr;
 TaskHandle_t hLCD = nullptr;
@@ -80,18 +85,23 @@ void setup() {
   static FSM fsm(myServo);
   g_fsm = &fsm;
 
+  xLCDSemaphore = xSemaphoreCreateBinary();
+  if (xLCDSemaphore == nullptr) {
+    Serial.println("Failed to create LCD semaphore");
+    abort();
+  }
   // Tasks creation
 #if USE_PINNED_TASKS
-  xTaskCreatePinnedToCore(SensorTask, "SensorTask", 4096, nullptr, 2, &hSensor,
+  xTaskCreatePinnedToCore(SensorTask, "SensorTask", 6144, nullptr, 2, &hSensor,
                           0);  // Core 0
-  xTaskCreatePinnedToCore(LCDTask, "LCDTask", 4096, nullptr, 1, &hLCD,
+  xTaskCreatePinnedToCore(LCDTask, "LCDTask", 6144, nullptr, 1, &hLCD,
                           0);  // Core 0
-  xTaskCreatePinnedToCore(FSMTask, "FSMTask", 6144, nullptr, 3, &hFSM,
+  xTaskCreatePinnedToCore(FSMTask, "FSMTask", 8192, nullptr, 3, &hFSM,
                           1);  // Core 1
 #else
-  xTaskCreate(SensorTask, "SensorTask", 4096, nullptr, 2, &hSensor);
-  xTaskCreate(LCDTask, "LCDTask", 4096, nullptr, 1, &hLCD);
-  xTaskCreate(FSMTask, "FSMTask", 6144, nullptr, 3, &hFSM);
+  xTaskCreate(SensorTask, "SensorTask", 6144, nullptr, 2, &hSensor);
+  xTaskCreate(LCDTask, "LCDTask", 6144, nullptr, 1, &hLCD);
+  xTaskCreate(FSMTask, "FSMTask", 8192, nullptr, 3, &hFSM);
 #endif
 
   Serial.println("Tasks created");

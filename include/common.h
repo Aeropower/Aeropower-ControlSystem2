@@ -4,6 +4,8 @@
 #define RATED_RPM_DUTY 512.0f          // Example of Duty cycle at rated RPM
 #include <ESP32Servo.h>
 
+#include "freertos/semphr.h"
+
 void moveServoSmooth(Servo& servo, int& currentAngle, int targetAngle, int step,
                      int delayMs);
 
@@ -14,4 +16,7 @@ const int pwmPin = 5;  // GPIO connected to MOSFET gate
 const int pwmFreq = 20000;     // 20 kHz switching frequency
 const int pwmChannel = 0;      // High-speed channel
 const int pwmResolution = 10;  // 10-bit resolution (0-1023)
+
+//Semaphores for tasks
+extern SemaphoreHandle_t xLCDSemaphore;
  
