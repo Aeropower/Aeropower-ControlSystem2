@@ -1,10 +1,10 @@
 -Assemble push buttons and connect them to MCU and test LCD module DONE
 
--Look for a better debouncing mechanism like a SR latch
+-Look for a better debouncing mechanism like a SR latch 
 
 -Figure out how to put the MCU into light sleep on stall DONE
 
--Start figuring out the emergency control
+-Start figuring out the emergency control DONE
 
 -Build a proper interface for the temperature, current and voltage sensor.
 
